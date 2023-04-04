@@ -16,19 +16,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      -name: Git Semantic Version
+        uses: paulhatch/semantic-version@v5.0.2
+        with:
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          version_format: "${major}.${minor}.${patch}-prerelease${increment}"
+        id: version
+
       - name: Docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+          NEW_VERSION: ${{steps.version.outputs.version_format}}
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+          echo "New version: $NEW_VERSION"
 
-      - name: Build Docker Image
-        run: |
-          docker build -t cristiandelcidd/docker-graphql:0.0.2 .
-          docker build -t cristiandelcidd/docker-graphql:latest .
 
-      - name: Push Docker Image
-        run: |
-          docker push cristiandelcidd/docker-graphql:0.0.2
-          docker push cristiandelcidd/docker-graphql:latest
+      # - name: Build Docker Image
+      #   run: |
+      #     docker build -t cristiandelcidd/docker-graphql:0.0.2 .
+      #     docker build -t cristiandelcidd/docker-graphql:latest .
+
+      # - name: Push Docker Image
+      #   run: |
+      #     docker push cristiandelcidd/docker-graphql:0.0.2
+      #     docker push cristiandelcidd/docker-graphql:latest
